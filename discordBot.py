@@ -37,7 +37,7 @@ working_directory         = os.path.realpath(config["working_directory"])
 response_messages         = config["response_messages"]
 max_concat_count          = config["max_concat_count"]
 discord_tagline           = config["discord_tagline"]
-discord_token             = config["discord_token"]
+discord_token             = os.environ.get("DISCORD_TOKEN") or config["discord_token"]
 meta_prefixes             = config["meta_prefixes"]
 cookie_file               = config.setdefault("cookie_file")
 
