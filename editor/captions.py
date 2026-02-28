@@ -32,7 +32,9 @@ def drawText(img, text, pos, leftAlign = False, mode = "impact", resourceDir = "
     else:
         raise Exception("Mode not available!")
 
-    w, h = canvas.textsize(text, font)
+    # w, h = canvas.textsize(text, font)
+    left, top, right, bottom = canvas.textbbox((0, 0), text, font=font)
+    w, h = right - left, bottom - top
     text = textwrap.fill(text, 2 * int(img.width / FS))
     for i in [r"\n", '^']:
         text = text.replace(i, '\n')
@@ -47,7 +49,9 @@ def drawText(img, text, pos, leftAlign = False, mode = "impact", resourceDir = "
     tmpX = lastY + h
 
     for i in range(0, len(lines)):
-        w, h = canvas.textsize(lines[i], font)
+        # w, h = canvas.textsize(lines[i], font)
+        left, top, right, bottom = canvas.textbbox((0, 0), lines[i], font=font)
+        w, h = right - left, bottom - top
         h = h * 1.1
         if leftAlign:
             x = tmpX
@@ -124,12 +128,16 @@ def poster(width, height, cap = None, bottomcap = None, resourceDir = "."):
     fName = f"{resourceDir}/fonts/times_emoji.ttf"
     if cap:
         font = ImageFont.truetype(fName, int(MP / 10))
-        w, h = canvas.textsize(cap, font = font)
+        # w, h = canvas.textsize(cap, font = font)
+        left, top, right, bottom_text = canvas.textbbox((0, 0), cap, font=font)
+        w, h = right - left, bottom_text - top
         canvas.text((int((newSize[0] - w) / 2), int(bb)), cap, font = font, embedded_color = True, align = "center")
         bottom = bb + h
     if bottomcap:
         font = ImageFont.truetype(fName, int(MP / 20))
-        smallW, smallH = canvas.textsize(bottomcap, font = font)
+        # smallW, smallH = canvas.textsize(bottomcap, font = font)
+        left, top, right, bottom_text = canvas.textbbox((0, 0), bottomcap, font=font)
+        smallW, smallH = right - left, bottom_text - top
         canvas.text((int((newSize[0] - smallW) / 2), int(nb:=(bottom + 0.02 * MP if bottom else int(bb + MP / 9.5)))), bottomcap, font = font, embedded_color = True, align = "center")
         bottom = nb + smallH
 
