@@ -188,8 +188,8 @@ def timecodeBreak(file, m):
     new.write(byteData)
 
 def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = False, toGif = False, disallowTimecodeBreak = False, HIDE_FFMPEG_OUT = True, HIDE_ALL_FFMPEG = True, SHOW_TIMER = False, fixPrint = fixPrint):
-    videoFX = ['playreverse', 'hmirror', 'vmirror', 'lag', 'rlag', 'shake', 'fisheye', 'zoom', 'bottomtext', 'toptext', 'normalcaption', 'topcap', 'bottomcap', 'topcaption', 'bottomcaption', 'hypercam', 'bandicam', 'deepfry', 'contrast', 'hue', 'hcycle', 'speed', 'vreverse', 'areverse', 'reverse', 'wscale', 'hscale', 'sharpen', 'watermark', 'framerate', 'invert', 'wave', 'waveamount', 'wavestrength', 'acid', 'hcrop', 'vcrop', 'hflip', 'vflip']
-    audioFX = ['pitch', 'reverb', 'earrape', 'bass', 'mute', 'threshold', 'crush', 'wobble', 'music', 'sfx', 'volume', 'autotune']
+    videoFX = ['playreverse', 'hmirror', 'vmirror', 'lag', 'rlag', 'shake', 'fisheye', 'defisheye', 'zoom', 'transpose', 'bottomtext', 'toptext', 'normalcaption', 'topcap', 'bottomcap', 'topcaption', 'bottomcaption', 'hypercam', 'bandicam', 'avs', 'avsold', 'filmora', 'iskysoft', 'kapwing', 'kinemaster', 'kinemasterold', 'redx', 'simpleshow', 'deepfry', 'contrast', 'hue', 'huehsv', 'swapuv', 'huehsvinvert', 'hcycle', 'speed', 'vreverse', 'areverse', 'reverse', 'wscale', 'hscale', 'sharpen', 'watermark', 'framerate', 'invert', 'invertred', 'invertgreen', 'invertblue', 'wave', 'waveamount', 'wavestrength', 'acid', 'hcrop', 'vcrop', 'hflip', 'vflip']
+    audioFX = ['pitch', 'reverb', 'earrape', 'bass', 'oops', 'threshold', 'crush', 'wobble', 'music', 'sfx', 'volume', 'autotune']
 
     d = {i: None for i in par}
     for i in groupData:
@@ -451,6 +451,14 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
                 video = video.filter("v360" , input = "equirect", output = "ball")
                 video = video.filter("scale", w = width, h = height)
             video = video.filter("setsar", r = 1)
+
+        def defisheye():
+            nonlocal video, audio
+            d['defisheye'] = int(constrain(d['defisheye'], 1, 2))
+            for i in range(d['defisheye']):
+                video = video.filter("v360" , input = "ball", output = "equirect")
+                video = video.filter("scale", w = width, h = height)
+            video = video.filter("setsar", r = 1)
         
         def hcrop():
             nonlocal video, audio, width, height
@@ -474,6 +482,10 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
                 video = video.filter(*zoomargs)
             else:
                 video = video.filter(*zoomargs, flags = "neighbor")
+
+        def transpose():
+            nonlocal video, audio
+            video = video.filter("transpose", constrain(d['transpose'], 0, 3))
 
         def toptext():
             nonlocal video, audio, width, height
@@ -511,8 +523,44 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
 
         def bandicam():
             nonlocal video, audio
-            video = video.overlay(ffmpeg.input(f"{resourceDir}/images/watermark/bandicam.png").filter("scale", w = width, h = height))
+            video = video.overlay(ffmpeg.input(f"{resourceDir}/images/watermark/bandicam_updated.png").filter("scale", w = width, h = height))
 
+        def avs():
+            nonlocal video, audio
+            video = video.overlay(ffmpeg.input(f"{resourceDir}/images/watermark/avs.png").filter("scale", w = width, h = height))
+
+        def avsold():
+            nonlocal video, audio
+            video = video.overlay(ffmpeg.input(f"{resourceDir}/images/watermark/avsold.png").filter("scale", w = width, h = height))
+
+        def filmora():
+            nonlocal video, audio
+            video = video.overlay(ffmpeg.input(f"{resourceDir}/images/watermark/filmora.png").filter("scale", w = width, h = height))
+
+        def iskysoft():
+            nonlocal video, audio
+            video = video.overlay(ffmpeg.input(f"{resourceDir}/images/watermark/iskysoft.png").filter("scale", w = width, h = height))
+
+        def kapwing():
+            nonlocal video, audio
+            video = video.overlay(ffmpeg.input(f"{resourceDir}/images/watermark/kapwing.png").filter("scale", w = width, h = height))
+
+        def kinemaster():
+            nonlocal video, audio
+            video = video.overlay(ffmpeg.input(f"{resourceDir}/images/watermark/kinemaster.png").filter("scale", w = width, h = height))
+
+        def kinemasterold():
+            nonlocal video, audio
+            video = video.overlay(ffmpeg.input(f"{resourceDir}/images/watermark/kinemasterold.png").filter("scale", w = width, h = height))
+
+        def redx():
+            nonlocal video, audio
+            video = video.overlay(ffmpeg.input(f"{resourceDir}/images/watermark/redx.png").filter("scale", w = width, h = height))
+
+        def simpleshow():
+            nonlocal video, audio
+            video = video.overlay(ffmpeg.input(f"{resourceDir}/images/watermark/simpleshow.png").filter("scale", w = width, h = height))
+        
         def watermark():
             nonlocal video, audio, height
             height = int(height)
@@ -522,7 +570,7 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
             t = [watermarks[int(r(0, len(watermarks)))] for i in range(d['watermark'])]
             cb, ch = True, True
             for i in t:
-                if getName(i) in ["9gag", "memebase", "ifunny", "laugh"]:
+                if getName(i) in ["9gag", "memebase", "ifunny"]:
                     w, h = getImageRes(i)
                     height += h
                     nn = ffmpeg.filter_multi_output([ffmpeg.input(i), video], "scale2ref", w='iw',h=f"iw * {(h / w)}")
@@ -532,7 +580,9 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
                     height += h
                     nn = ffmpeg.filter_multi_output([ffmpeg.input(i), video], "scale2ref", w='iw / 3',h=f"iw / 3 * {(h / w)}")
                     video = nn[1].overlay(nn[0], x = "main_w * 0.05", y = "main_h * 0.95")
-                if getName(i) == "reddit":
+                if getName(i) in ["reddit", "avs", "avsold", "filmora", "iskysoft", "kapwing", "kinemaster", "kinemasterold", "redx", "simpleshow"]:
+                    w, h = getImageRes(i)
+                    height += h
                     nn = ffmpeg.filter_multi_output([ffmpeg.input(i), video], "scale2ref", w = "iw", h = "ih")
                     video = nn[1].overlay(nn[0])
                 if cb and getName(i) == "bandicam":
@@ -563,17 +613,41 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
             nonlocal video, audio
             video = video.filter("negate")
 
+        def invertred():
+            nonlocal video, audio
+            video = video.filter("lutrgb", r="negval")
+
+        def invertgreen():
+            nonlocal video, audio
+            video = video.filter("lutrgb", g="negval")
+
+        def invertblue():
+            nonlocal video, audio
+            video = video.filter("lutrgb", b="negval")
+
         def hue():
             nonlocal video, audio
             if d['hue'] is None:
                 d['hue'] = 0
             else:
-                d['hue'] = int(3.6 * constrain(d['hue'], 0, 100))
+                d['hue'] = int(1 * constrain(d['hue'], 0, 360))
             if d['hcycle'] is None:
                 d['hcycle'] = 0
             else:
-                d['hcycle'] = constrain(d['hcycle'], 0, 100) / 10
+                d['hcycle'] = constrain(d['hcycle'], 0, 360) / 10
             video = video.filter("hue", h = f'''{d['hue']} + ({d['hcycle']}*360*t)''')
+
+        def huehsv():
+            nonlocal video, audio
+            video = video.filter("huesaturation",(d['huehsv']),0,0,-100,100)
+
+        def swapuv():
+            nonlocal video, audio
+            video = video.filter("swapuv")
+
+        def huehsvinvert():
+            nonlocal video, audio
+            video = video.filter("vibrance",intensity=-1.8,alternate=1,rlum=0.3,glum=0.45,blum=0.25)
 
         def speed():
             nonlocal video, audio
@@ -666,7 +740,9 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
             'rlag': rlag,
             'shake': shake,
             'fisheye': fisheye,
+            'defisheye': defisheye,
             'zoom': zoom,
+            'transpose': transpose,
             'bottomtext': toptext,
             'toptext': toptext,
             'normalcaption': normalcaption,
@@ -676,9 +752,21 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
             'bottomcaption': topcaption,
             'hypercam': hypercam,
             'bandicam': bandicam,
+            'avs': avs,
+            'avsold': avsold,
+            'filmora': filmora,
+            'iskysoft': iskysoft,
+            'kapwing': kapwing,
+            'kinemaster': kinemaster,
+            'kinemasterold': kinemasterold,
+            'redx': redx,
+            'simpleshow': simpleshow,
             'deepfry': deepfry,
             'contrast': contrast,
             'hue': hue,
+            'huehsv': huehsv,
+            'swapuv': swapuv,
+            'huehsvinvert': huehsvinvert,
             'hcycle': hue,
             'speed': speed,
             'vreverse': vreverse,
@@ -690,6 +778,9 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
             'watermark': watermark,
             'framerate': framerate,
             'invert': invert,
+            'invertred': invertred,
+            'invertgreen': invertgreen,
+            'invertblue': invertblue,
             'wave': wave,
             'acid': acid,
             'hcrop': hcrop,
@@ -716,7 +807,7 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
             SOXCMD = []
 
         def mute(SOXCMD, AUDPRE):
-            SOXCMD += ['gain', "-1000"]
+            SOXCMD += ['oops']
             return AUDPRE
         def threshold(SOXCMD, AUDPRE):
             n = -(50 - constrain(d['threshold'], 1, 100) / 2)
@@ -758,7 +849,7 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
             if len(SOXCMD) > 0:
                 exportSox(AUDPRE, "PRE_WOB")
                 AUDPRE = "PRE_WOB"
-            d['wobble'] = ceil(translate(d['wobble'], 0, 100, 1, 100, f = lambda x: x ** 3))
+            d['wobble'] = ceil(translate(d['wobble'], 0, 1000, 1, 1000, f = lambda x: x ** 3))
             wobAud = qui(ffmpeg.input(f"{pat}/{AUDPRE}{e0}.wav").filter("vibrato", d['wobble'], 1).output(f"{pat}/WOBBLE{e0}.wav")).run()
             return "WOBBLE"
         def music(SOXCMD, AUDPRE):
@@ -804,7 +895,7 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
             'autotune' : autotune,
             'music'    : music,
             'sfx'      : sfx,
-            'mute'     : mute
+            'oops'     : mute
         }
 
         timer()
@@ -956,79 +1047,96 @@ V, S = float, str
 
 def videoEdit(originalFile, args, workingDir = "./", resourceDir = path.dirname(__file__), disallowTimecodeBreak = False, keepExtraFiles = False, SHOW_TIMER = False, HIDE_FFMPEG_OUT = True, HIDE_ALL_FFMPEG = True, fixPrint = fixPrint, durationUnder = None, allowRandom = True, logErrors = False):
     oldArgs = args
-    par = {
-        "vbr"           :[V, "vbr" , round(r(0, 100)) ],
-        "abr"           :[V, "abr" , round(r(0, 100)) ],
-        "earrape"       :[V, "er"  , round(r(0, 100)) ],
-        "deepfry"       :[V, "df"  , round(r(0, 100)) ],
-        "contrast"      :[V, "ct"  , round(r(0, 100)) ],
-        "speed"         :[V, "sp"  , r(-4, 4) ],
-        "timecode"      :[V, "timc", None ],
-        "crash"         :[V, "crsh", None ],
-        "bass"          :[V, "bs"  , round(r(0, 100)) ],
-        "shuffle"       :[V, "sh"  , None ],
-        "toptext"       :[S, "tt"  , str(r(0, 100)) ],
-        "bottomtext"    :[S, "bt"  , str(r(0, 100)) ],
-        "wscale"        :[S, "ws"  , int(r(-500, 500)) ],
-        "hscale"        :[S, "hs"  , int(r(-500, 500)) ],
-        "topcaption"    :[S, "tc"  , str(r(0, 100)) ],
-        "bottomcaption" :[S, "bc"  , str(r(0, 100)) ],
-        "threshold"     :[V, "thh" , None ],
-        "hue"           :[V, "hue" , round(r(0, 100)) ],
-        "hcycle"        :[V, "huec", round(r(0, 100)) ],
-        "hypercam"      :[V, "hypc", 1 ],
-        "bandicam"      :[V, "bndc", 1 ],
-        "normalcaption" :[S, "nc"  , str(r(0, 100)) ],
-        "topcap"        :[S, "cap" , str(r(0, 100)) ],
-        "bottomcap"     :[S, "bcap", str(r(0, 100)) ],
-        "reverse"       :[V, "rev" , 1 ],
-        "vreverse"      :[V, "vrev", 1 ],
-        "areverse"      :[V, "arev", 1 ],
-        "playreverse"   :[V, "prev", int(r(1, 3)) ],
-        "datamosh"      :[V, "dm"  , int(r(0, 100)) ],
-        "stutter"       :[S, "st"  , int(r(0, 25)) ],
-        "ytp"           :[V, "ytp" , int(r(1, 2)) ],
-        "fisheye"       :[V, "fe"  , int(r(1, 2)) ],
-        "mute"          :[V, "mt"  , None ],
-        "pitch"         :[V, "pch" , int(r(-100, 100)) ],
-        "reverb"        :[V, "rv"  , int(r(0, 100)) ],
-        "reverbdelay"   :[V, "rvd" , int(r(0, 100)) ],
-        "hmirror"       :[V, "hm"  , 1 ],
-        "vmirror"       :[V, "vm"  , 1 ],
-        "ricecake"      :[V, "rc"  , int(r(1, 25)) ],
-        "sfx"           :[V, "sfx" , int(r(1, 100)) ],
-        "music"         :[S, "mus" , None ],
-        "musicskip"     :[V, "muss", None ],
-        "musicdelay"    :[V, "musd", None ],
-        "volume"        :[V, "vol" , r(0.5, 3) ],
-        "start"         :[V, "s"   , None ],
-        "end"           :[V, "e"   , None ],
-        "selection"     :[V, "se"  , None ],
-        "holdframe"     :[V, "hf"  , None ],
-        "delfirst"      :[V, "delf", None ],
-        "dellast"       :[V, "dell", None ],
-        "shake"         :[V, "shk" , int(r(1, 100)) ],
-        "crush"         :[V, "cr"  , int(r(1, 100)) ],
-        "lag"           :[V, "lag" , int(r(1, 100)) ],
-        "rlag"          :[V, "rlag", int(r(1, 100)) ],
-        "wobble"        :[V, "wub" , int(r(1, 100)) ],
-        "zoom"          :[V, "zm"  , int(r(1, 5)) ],
-        "hcrop"         :[V, "hcp" , int(r(10, 90)) ],
-        "vcrop"         :[V, "vcp" , int(r(10, 90)) ],
-        "hflip"         :[V, "hflp", 1 ],
-        "vflip"         :[V, "vflp", 1 ],
-        "sharpen"       :[V, "shp" , int(r(-100, 100)) ],
-        "watermark"     :[V, "wtm" , int(r(0, 100)) ],
-        "framerate"     :[V, "fps" , int(r(5, 20)) ],
-        "invert"        :[V, "inv" , 1 ],
-        "wave"          :[V, "wav" , r(-100, 100) ],
-        "waveamount"    :[V, "wava", r(0, 100) ],
-        "wavestrength"  :[V, "wavs", r(0, 100) ],
-        "repeatuntil"   :[V, "repu", None ],
-        "acid"          :[V, "acid", r(1, 100) ],
-        "glitch"        :[V, "glch", r(1, 100) ],
-        "autotune"      :[S, "atb" , "https://www.youtube.com/watch?v=65bNd-PnC64" ]
-    }
+    par = { 
+        "vbr"           :[V, "vbr" , round(r(0, 100)) ], 
+        "abr"           :[V, "abr" , round(r(0, 100)) ], 
+        "earrape"       :[V, "er"  , round(r(0, 100)) ], 
+        "deepfry"       :[V, "df"  , round(r(0, 100)) ], 
+        "contrast"      :[V, "ct"  , round(r(0, 100)) ], 
+        "speed"         :[V, "sp"  , r(-4, 4) ], 
+        "timecode"      :[V, "timc", None ], 
+        "crash"         :[V, "crsh", None ], 
+        "bass"          :[V, "bs"  , round(r(0, 100)) ], 
+        "shuffle"       :[V, "sh"  , None ], 
+        "toptext"       :[S, "tt"  , str(r(0, 100)) ], 
+        "bottomtext"    :[S, "bt"  , str(r(0, 100)) ], 
+        "wscale"        :[S, "ws"  , int(r(-500, 500)) ], 
+        "hscale"        :[S, "hs"  , int(r(-500, 500)) ], 
+        "topcaption"    :[S, "tc"  , str(r(0, 100)) ], 
+        "bottomcaption" :[S, "bc"  , str(r(0, 100)) ], 
+        "threshold"     :[V, "thh" , None ], 
+        "hue"           :[V, "hue" , round(r(0, 360)) ], 
+        "huehsv"        :[V, "huehsv" , round(r(0, 360)) ], 
+        "hcycle"        :[V, "huec", round(r(0, 100)) ], 
+        "hypercam"      :[V, "hypc", 1 ], 
+        "bandicam"      :[V, "bndc", 1 ], 
+        "avs"           :[V, "avs" , 1 ],
+        "avsold"        :[V, "avsold", 1 ],
+        "filmora"       :[V, "filmora", 1 ],
+        "iskysoft"      :[V, "iskysoft", 1 ],
+        "kapwing"       :[V, "kapwing", 1 ],
+        "kinemaster"    :[V, "kine", 1 ],
+        "kinemasterold" :[V, "kineold", 1 ],
+        "redx"          :[V, "redx", 1 ],
+        "simpleshow"    :[V, "simpleshow", 1 ],
+        "normalcaption" :[S, "nc"  , str(r(0, 100)) ], 
+        "topcap"        :[S, "cap" , str(r(0, 100)) ], 
+        "bottomcap"     :[S, "bcap", str(r(0, 100)) ], 
+        "reverse"       :[V, "rev" , 1 ], 
+        "vreverse"      :[V, "vrev", 1 ], 
+        "areverse"      :[V, "arev", 1 ], 
+        "playreverse"   :[V, "prev", int(r(1, 3)) ], 
+        "datamosh"      :[V, "dm"  , int(r(0, 100)) ], 
+        "stutter"       :[S, "st"  , int(r(0, 25)) ], 
+        "ytp"           :[V, "ytp" , int(r(1, 2)) ], 
+        "fisheye"       :[V, "fe"  , int(r(1, 2)) ], 
+        "defisheye"       :[V, "defe"  , int(r(1, 2)) ], 
+        "oops"          :[V, "op"  , None ], 
+        "pitch"         :[V, "pch" , int(r(-100, 100)) ], 
+        "reverb"        :[V, "rv"  , int(r(0, 100)) ], 
+        "reverbdelay"   :[V, "rvd" , int(r(0, 100)) ], 
+        "hmirror"       :[V, "hm"  , 1 ], 
+        "vmirror"       :[V, "vm"  , 1 ], 
+        "ricecake"      :[V, "rc"  , int(r(1, 25)) ], 
+        "sfx"           :[V, "sfx" , int(r(1, 100)) ], 
+        "music"         :[S, "mus" , None ], 
+        "musicskip"     :[V, "muss", None ], 
+        "musicdelay"    :[V, "musd", None ], 
+        "volume"        :[V, "vol" , r(0.5, 3) ], 
+        "start"         :[V, "s"   , None ], 
+        "end"           :[V, "e"   , None ], 
+        "selection"     :[V, "se"  , None ], 
+        "holdframe"     :[V, "hf"  , None ], 
+        "delfirst"      :[V, "delf", None ], 
+        "dellast"       :[V, "dell", None ], 
+        "shake"         :[V, "shk" , int(r(1, 100)) ], 
+        "crush"         :[V, "cr"  , int(r(1, 100)) ], 
+        "lag"           :[V, "lag" , int(r(1, 100)) ], 
+        "rlag"          :[V, "rlag", int(r(1, 100)) ], 
+        "wobble"        :[V, "wub" , int(r(1, 1000)) ], 
+        "zoom"          :[V, "zm"  , int(r(1, 5)) ], 
+        "transpose"     :[V, "tp"  , int(r(0, 3)) ], 
+        "hcrop"         :[V, "hcp" , int(r(10, 90)) ], 
+        "vcrop"         :[V, "vcp" , int(r(10, 90)) ], 
+        "hflip"         :[V, "hflp", 1 ], 
+        "vflip"         :[V, "vflp", 1 ], 
+        "sharpen"       :[V, "shp" , int(r(-100, 100)) ], 
+        "watermark"     :[V, "wtm" , int(r(0, 100)) ], 
+        "framerate"     :[V, "fps" , int(r(5, 20)) ], 
+        "invert"        :[V, "inv" , 1 ], 
+        "huehsvinvert"  :[V, "hue180" , 1 ], 
+        "invertred"     :[V, "invr" , 1 ], 
+        "invertgreen"   :[V, "invg" , 1 ],
+        "invertblue"    :[V, "invb" , 1 ],
+        "swapuv"        :[V, "uv" , 1 ], 
+        "wave"          :[V, "wav" , r(-100, 100) ], 
+        "waveamount"    :[V, "wava", r(0, 100) ], 
+        "wavestrength"  :[V, "wavs", r(0, 100) ], 
+        "repeatuntil"   :[V, "repu", None ], 
+        "acid"          :[V, "acid", r(1, 100) ], 
+        "glitch"        :[V, "glch", r(1, 100) ], 
+        "autotune"      :[S, "atb" , "https://www.youtube.com/watch?v=4qyUUgeW1gA" ] 
+    } 
 
     for i, v in par.items(): v[1], v[2] = v[2], v[1] # Dumb ik but it's too much effort otherwise
 
@@ -1104,7 +1212,7 @@ def videoEdit(originalFile, args, workingDir = "./", resourceDir = path.dirname(
             tryToDeleteFile(originalFile)
             tryToDeleteDir(newFileDir)
             
-        return result(False, "", "An unknown error has occured!")
+        return result(False, "", ":x: **Processing error:** " + str(ex) + "")
 
 # if __name__ == "__main__":
 #     if len(sys.argv) == 1:

@@ -202,12 +202,12 @@ async def processQue():
             action = res.context.reply if res.reply else (res.context.edit if res.edit else res.context.channel.send)
             if res.filepath:
                 if (filesize := os.path.getsize(res.filepath)) >= FILE_SIZE_LIMIT_MB * 1024 ** 2:
-                    await action(f"Sorry, but the resulting file ({human_size(filesize)}) is over the {FILE_SIZE_LIMIT_MB}MB bot upload limit.")
+                    await action(f":x: File is above the {FILE_SIZE_LIMIT_MB}MB size limit.**")
                 else:
                     with open(res.filepath, 'rb') as f:
                         args = [res.message] if res.message else []
                         file_kwargs = {"filename": res.filename} if res.filename else {}
-                        if res.message and res.context.content.startswith('!') and (action == res.context.reply and res.context.author.id == bot.user.id):
+                        if res.message and res.context.content.startswith('ax.') and (action == res.context.reply and res.context.author.id == bot.user.id):
                             await res.context.delete()
                             await asyncio.sleep(1)
                             await res.context.channel.send(*args, file = discord.File(f, **file_kwargs))
@@ -310,7 +310,7 @@ async def parse_command(message):
     except discord.errors.NotFound:
         is_reply_to_bot = False
 
-    if message.author.id != bot.user.id and not is_reply_to_bot and msg.split('>>')[0].removeprefix('!').strip() == "":
+    if message.author.id != bot.user.id and not is_reply_to_bot and msg.split('>>')[0].removeprefix('ax.').strip() == "":
         return
     
     has_meta_prefix = is_reply_to_bot
@@ -331,12 +331,12 @@ async def parse_command(message):
         ) else command_chain_limit)
     
     command, *remainder = msg.split(">>")[:chain_limit]
-    if command.startswith('!'):
-        command = command.removeprefix('!')
+    if command.startswith('ax.'):
+        command = command.removeprefix('ax.')
     
     remainder = clean_message('>>'.join(remainder)).strip()
     
-    if len(remainder) and not any(remainder.removeprefix('!').startswith(i) for i in cmd_name_opts):
+    if len(remainder) and not any(remainder.removeprefix('ax.').startswith(i) for i in cmd_name_opts):
         remainder = f"destroy {remainder}"
     
     spl = command.strip().split(' ', 1)
@@ -446,7 +446,7 @@ async def on_ready():
     asyncio.create_task(async_runner.looper())
     
     botReady = True
-    info("Bot ready!")
+    info("AxisBot is ready!")
 
 @bot.event
 async def on_message(msg):
