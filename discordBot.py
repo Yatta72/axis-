@@ -289,9 +289,9 @@ async def prepare_concat(msg, args):
     
     return targets
 
-def process_result_post(msg, res, filename = "video.mp4", prefix = None, random_message = True):
+def process_result_post(msg, res, filename = "video.mp4", prefix = None, random_message = True, override_message = None):
     if res.success:
-        text = random.choice(response_messages) if random_message else res.message
+        text = override_message if override_message else (random.choice(response_messages) if random_message else res.message)
         content = f"{prefix.strip()} ║ {text.strip()}" if prefix else text.strip()
         messageQue.append(qued_msg(context = msg, filepath = res.filename, filename = hash_filename(filename), message = content, reply = True))
     else:
@@ -392,7 +392,7 @@ async def parse_command(message):
                                 message = "Sorry, something went wrong during concatenation.",
                                 reply = True)))),
                 Action(process_result_post, message, result(True, concat_filename, ""), concat_filename, remainder,
-                    name = "Post Concat"),
+                    name = "Post Concat", override_message = "Here are your concatted videos:"),
                 async_handler = async_runner
             ).run_threaded()
         case "download":
@@ -401,7 +401,7 @@ async def parse_command(message):
                     download_filename := f"{generate_uuid_folder_from_msg(message.id)}.mp4",
                     args, name="yt-dlp download", file_limit=FILE_SIZE_LIMIT_MB),
                 Action(process_result_post, message, swap_arg("result"), download_filename,
-                    remainder, name="Post Download"),).run_threaded()
+                    remainder, name="Post Download", override_message="Here is your downloaded video"),).run_threaded()
         case "destroy":
             Task(
                 Action(prepare_VideoEdit, message,
