@@ -365,6 +365,8 @@ async def parse_command(message):
         await message.reply(f"Please wait {ceil(is_timeout)} seconds to use this command again.")
         return
 
+    await message.channel.trigger_typing()
+
     match final_command_name:
         case "help":
             if 'veb' in original_msg:
@@ -401,7 +403,7 @@ async def parse_command(message):
                     download_filename := f"{generate_uuid_folder_from_msg(message.id)}.mp4",
                     args, name="yt-dlp download", file_limit=FILE_SIZE_LIMIT_MB),
                 Action(process_result_post, message, swap_arg("result"), download_filename,
-                    remainder, name="Post Download", override_message="Here is your downloaded video"),).run_threaded()
+                    remainder, name="Post Download", override_message="Here is your downloaded video:"),).run_threaded()
         case "destroy":
             Task(
                 Action(prepare_VideoEdit, message,
