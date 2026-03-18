@@ -29,7 +29,7 @@ info = lambda *args: logger.info(' | '.join(map(str, args)))
 
 config = json_load(open("config.json", 'r'))
 
-FILE_SIZE_LIMIT_MB = 24 # My internet pls
+FILE_SIZE_LIMIT_MB = 10 # My internet pls
 
 message_search_count      = config["message_search_count"]
 command_chain_limit       = config["command_chain_limit"]
@@ -78,7 +78,7 @@ async_runner = Async_handler()
 taskList, messageQue = [], []
 
 intents = discord.Intents.all()
-intents.typing = False
+intents.typing = True
 intents.presences = False
 # intents.members = False
 discord_status = discord.Game(name=discord_tagline)
@@ -365,12 +365,12 @@ async def parse_command(message):
         await message.reply(f"Please wait {ceil(is_timeout)} seconds to use this command again.")
         return
 
-    await message.channel.trigger_typing()
+    async with message.channel.typing():
+        await asyncio.sleep(0.5)
 
     match final_command_name:
         case "help":
-            if 'veb' in original_msg:
-                await message.reply("VideoEditBot Command Documentation: https://github.com/GanerCodes/videoEditBot/blob/master/COMMANDS.md")
+            await message.reply("# AxisBot+ Commands\n-# a list of commands for axis+, prefix is ax.\n\n**concat**\n-# combines videos\n\n**download**\n-# downloads a video from youtube\n\n**destroy**\n-# edits a video on axis+\n\n**hat**\n-# hat\n\n**help**\n-# shows this message")
         case "hat":
             embed = discord.Embed(title = 'hat', description = 'hat')
             embed.set_image(url = "https://cdn.discordapp.com/attachments/748021401016860682/920801735147139142/5298188282_1639606638167.png")
@@ -391,7 +391,7 @@ async def parse_command(message):
                         lambda n, e: messageQue.append(
                             qued_msg(
                                 context = message,
-                                message = "Sorry, something went wrong during concatenation.",
+                                message = ":x: **Concat error:** ```" + str(ex) + "```",
                                 reply = True)))),
                 Action(process_result_post, message, result(True, concat_filename, ""), concat_filename, remainder,
                     name = "Post Concat", override_message = "Here are your concatted videos:"),

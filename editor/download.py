@@ -98,7 +98,7 @@ def download(name, url, skip=None, delay=None, duration=None, video=True, cookie
 
     if returnCode(ffmpegCommand) != 0:
         fixPrint("Error on download command:", url, skip, delay, duration, video, ffmpegCommand, urlCMD)
-        return result(False, "", "Error downloading video")
+        return result(False, "", ":x: **Download error:** ```" + str(ffmpegCommand) + "```")
     return result(True, name, "")
 
 if __name__ == "__main__":
