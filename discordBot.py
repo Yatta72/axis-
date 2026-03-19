@@ -366,7 +366,7 @@ async def parse_command(message):
         return
 
     async with message.channel.typing():
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0)
 
     match final_command_name:
         case "help":
@@ -376,6 +376,7 @@ async def parse_command(message):
             embed.set_image(url = "https://cdn.discordapp.com/attachments/748021401016860682/920801735147139142/5298188282_1639606638167.png")
             await message.reply("Hat", embed=embed)
         case "concat":
+            await message.reply("Concatenating...")
             Task(
                 Action(prepare_concat, message, args,
                     name = "Concat Command Prep",
@@ -398,6 +399,7 @@ async def parse_command(message):
                 async_handler = async_runner
             ).run_threaded()
         case "download":
+            await message.reply("Downloading...")
             Task(
                 Action(download,
                     download_filename := f"{generate_uuid_folder_from_msg(message.id)}.mp4",
@@ -405,6 +407,7 @@ async def parse_command(message):
                 Action(process_result_post, message, swap_arg("result"), download_filename,
                     remainder, name="Post Download", override_message="Here is your downloaded video:"),).run_threaded()
         case "destroy":
+            await message.reply("Generating file...")
             Task(
                 Action(prepare_VideoEdit, message,
                     name = "VEB Command Prep",
