@@ -457,6 +457,9 @@ async def on_ready():
 
 @bot.event
 async def on_message(msg):
-    await parse_command(msg)
+    try:
+        await parse_command(msg)
+    except Exception as e:
+        print(f"Error in on_message: {e}")
 
 bot.run(discord_token)
