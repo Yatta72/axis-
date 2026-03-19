@@ -19,6 +19,7 @@ from functools import reduce
 from operator import add
 from editor import editor
 from math import ceil
+from keep_alive import keep_alive
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -372,10 +373,12 @@ async def parse_command(message):
 
     match final_command_name:
         case "help":
+            await message.reply("Showing list of commands...")
             await message.reply("# AxisBot+ Commands\n-# a list of commands for axis+, prefix is ax.\n\n**concat**\n-# combines videos\n\n**download**\n-# downloads a video from youtube\n\n**destroy**\n-# edits a video on axis+\n\n**hat**\n-# hat\n\n**help**\n-# shows this message")
         case "hat":
             embed = discord.Embed(title = 'hat', description = 'hat')
             embed.set_image(url = "https://cdn.discordapp.com/attachments/748021401016860682/920801735147139142/5298188282_1639606638167.png")
+            await message.reply("Showing hat...")
             await message.reply("Hat", embed=embed)
         case "concat":
             await message.reply("Concatenating...")
