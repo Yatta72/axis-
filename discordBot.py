@@ -365,8 +365,10 @@ async def parse_command(message):
         await message.reply(f"Please wait {ceil(is_timeout)} seconds to use this command again.")
         return
 
-    async with message.channel.typing():
-        await asyncio.sleep(0)
+    try:
+        await message.channel.trigger_typing()
+    except Exception:
+        pass
 
     match final_command_name:
         case "help":
