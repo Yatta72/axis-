@@ -568,7 +568,7 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
             j = f"{resourceDir}/images/watermark"
             watermarks = [f"{j}/{i}" for i in listdir(j)]
             t = [watermarks[int(r(0, len(watermarks)))] for i in range(d['watermark'])]
-            cb, ch = True, True
+            cb, ch, ca, cf, ci, ck, cr, cs = True, True, True, True, True, True, True, True
             for i in t:
                 if getName(i) in ["9gag", "memebase", "ifunny"]:
                     w, h = getImageRes(i)
@@ -580,9 +580,7 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
                     height += h
                     nn = ffmpeg.filter_multi_output([ffmpeg.input(i), video], "scale2ref", w='iw / 3',h=f"iw / 3 * {(h / w)}")
                     video = nn[1].overlay(nn[0], x = "main_w * 0.05", y = "main_h * 0.95")
-                if getName(i) in ["reddit", "avs", "avsold", "filmora", "iskysoft", "kapwing", "kinemaster", "kinemasterold", "redx", "simpleshow"]:
-                    w, h = getImageRes(i)
-                    height += h
+                if getName(i) == "reddit":
                     nn = ffmpeg.filter_multi_output([ffmpeg.input(i), video], "scale2ref", w = "iw", h = "ih")
                     video = nn[1].overlay(nn[0])
                 if cb and getName(i) == "bandicam":
@@ -591,6 +589,33 @@ def edit(file, groupData, par, workingDir = "", resourceDir = "..", toVideo = Fa
                 if ch and getName(i) == "hypercam":
                     hypercam()
                     ch = False
+                if ca and getName(i) == "avs":
+                    avs()
+                    ca = False
+                if ca and getName(i) == "avsold":
+                    avsold()
+                    ca = False
+                if cf and getName(i) == "filmora":
+                    filmora()
+                    cf = False
+                if ci and getName(i) == "iskysoft":
+                    iskysoft()
+                    ci = False
+                if ck and getName(i) == "kapwing":
+                    kapwing()
+                    ck = False
+                if ck and getName(i) == "kinemaster":
+                    kinemaster()
+                    ck = False
+                if ck and getName(i) == "kinemasterold":
+                    kinemasterold()
+                    ck = False
+                if cr and getName(i) == "redx":
+                    redx()
+                    cr = False
+                if cs and getName(i) == "simpleshow":
+                    simpleshow()
+                    cs = False
             height = str(height)
 
         def deepfry():
