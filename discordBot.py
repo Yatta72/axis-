@@ -19,7 +19,6 @@ from functools import reduce
 from operator import add
 from editor import editor
 from math import ceil
-from keep_alive import keep_alive
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
